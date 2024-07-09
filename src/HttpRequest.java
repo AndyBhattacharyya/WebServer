@@ -51,6 +51,10 @@ public class HttpRequest extends HttpMessage{
         return responsecode;
     }
 
+    public void setResponsecode(ResponseCodes responsecode) {
+        this.responsecode = responsecode;
+    }
+
     public String getReq() {
         return req;
     }
@@ -61,11 +65,12 @@ public class HttpRequest extends HttpMessage{
             this.responsecode =ResponseCodes.R501;
             return;
         }
-        //Only support ServerRoot Resource
-        if(!http_requesturi.equals("/")){
-            this.responsecode =ResponseCodes.R404;
-            return;
+        //Server root should be the only resource, change the directory to /chatroom.html
+        if(http_requesturi.equals("/")){
+            this.http_requesturi=System.getProperty("user.dir")+"/chatroom.html";
         }
+        this.http_requesturi=System.getProperty("user.dir")+http_requesturi;
+        //Request will be considered valid unless it is 404 not found
         this.responsecode = ResponseCodes.R200;
     }
 
