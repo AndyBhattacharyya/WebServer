@@ -30,7 +30,9 @@ public class MessageHandler implements Runnable {
             //Encapsulating client's request attributes/functionality in object HttpRequest
             HttpRequest client = new HttpRequest(req);
             //Telling the webserver to respond, which will respond based on the client's http request
-            HttpResponse.SendHttpResponse(client, HttpClientOutput);
+            new HttpResponse(client).SendHttpResponse(HttpClientOutput);
+            //Added this here so that the client doesn't block, look at java try w/ resources
+            HttpClient.close();
         } catch(IOException e){System.out.println("error");}
     }
 }
