@@ -9,10 +9,12 @@ import java.util.concurrent.Executors;
 public class ConnectionHandler {
 
     public static void main(String[] args) throws IOException {
+        //Make this loop until interrupt
         final ServerSocket http_server = new ServerSocket(25565);
         ExecutorService request_handler = Executors.newFixedThreadPool(3);
-        request_handler.submit(new MessageHandler(http_server.accept()));
-        request_handler.shutdown();
+        while(true) {
+            request_handler.submit(new MessageHandler(http_server.accept()));
+        }
 
     }
 }
