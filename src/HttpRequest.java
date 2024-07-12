@@ -1,96 +1,71 @@
+import java.io.File;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HttpRequest extends HttpMessage{
+public class HttpRequest {
 
     private String http_method;
-    private String http_requesturi;
+    private File http_requesturi;
     private String http_version;
     private String http_requestLine;
     private String http_entityBody;
     private String http_headerBody;
     private String req;
-    private ResponseCodes responsecode;
 
-    public HttpRequest(String req){
-        //Not yet validated (raw) request
-        this.req=req;
-        //Checks if the syntax of the request follows RFC HTTP 1.0
-        if(!validRequest(req)){
-            this.responsecode=ResponseCodes.R400;
-        }
-        else{
-            //Tokenizing Request to validate semantics
-            //Tokenize request line
-            String regex_requestline ="^[A-Z]*\\s/.*\\sHTTP/(1.0|1.1|2|3)(\\s\\s)";
-            //Tokenize header body as well as null line
-            String regex_headerbody="(.+:\\s.+(\\s\\s|\\s))+\\s\\s";
-            //Require lookbehind regex so we can identify the EntityBody only if the null line precedes it. Tokenize Entity Body
-            String regex_entitybody = "(?<=^\\s\\s).*";
-            //Obtain tokens as strings
-            Matcher httpparse = Pattern.compile(regex_requestline).matcher(req);
-            httpparse.find();
-            http_requestLine= httpparse.group();
-            httpparse = Pattern.compile(regex_headerbody).matcher(req);
-            httpparse.find();
-            http_headerBody= httpparse.group();
-            httpparse = Pattern.compile(regex_entitybody,Pattern.MULTILINE).matcher(req);
-            httpparse.find();
-            http_entityBody= httpparse.group();
-            //Further Tokenizing of HTTP requestline to ensure meaningful request:verb, requestURI,etc
-            Scanner requestline = new Scanner(http_requestLine);
-            //Obtaining tokenized HTTP requestline
-            setRequestTokens(requestline);
-            //Validating the tokenized HTTP requestline
-            validateRequestTokens();
-        }
-    }
-
-    public ResponseCodes getClientResponsecode() {
-        return responsecode;
-    }
-
-    public void setResponsecode(ResponseCodes responsecode) {
-        this.responsecode = responsecode;
-    }
-
-    public String getReq() {
-        return req;
-    }
-
-    public void validateRequestTokens(){
-        //Only supporting GET and POST methods for now
-        if(!http_method.equals("GET")&&!http_method.equals("POST")){
-            this.responsecode =ResponseCodes.R501;
-            return;
-        }
-        //Server root should be the only resource, change the directory to /chatroom.html
-        if(http_requesturi.equals("/")){
-            this.http_requesturi=System.getProperty("user.dir")+"/chatroom.html";
-        }
-        this.http_requesturi=System.getProperty("user.dir")+http_requesturi;
-        //Request will be considered valid unless it is 404 not found
-        this.responsecode = ResponseCodes.R200;
-    }
-
-    private boolean validRequest(String req){
+    public static boolean validRequest(String req){
         /**
          * Request-Line regex checklist: 3 letter capital word =^GET , space=\s, /, space=\s, HTTP/any digit,.,any digit:
          * Request-Line + Headers Checklist:
          *
          */
-        //Valid if it is a valid GET req + only mentions resource: Server ROOT
-        String regex_requestline ="^[A-Z]+\\s/.*\\sHTTP/(1.0|1.1|2|3)\\s\\s";
+        //Valid if it is a valid GET req with proper URL encoding. Utilize right library
+        String regex_requestline ="^[A-Z]+\\s/[A-Za-z0-9[%.]]*\\sHTTP/(1.0|1.1|2|3)\\s\\s";
         //Requires to match CRLF null line between Headers and Body of HTTP request
         String regex_body="(.+:\\s.+(\\s\\s|\\s))+\\s\\s";
         String regex_entitybody=".*";
         return Pattern.matches(regex_requestline+regex_body+regex_entitybody,req);
     }
+    public HttpRequest(String req){
+        //Not yet validated (raw) request
+        this.req=req;
+        //Tokenizing Request to validate semantics
+        //Tokenize request line
+        String regex_requestline ="^[A-Z]*\\s/.*\\sHTTP/(1.0|1.1|2|3)(\\s\\s)";
+        //Tokenize header body as well as null line
+        String regex_headerbody="(.+:\\s.+(\\s\\s|\\s))+\\s\\s";
+        //Require lookbehind regex so we can identify the EntityBody only if the null line precedes it. Tokenize Entity Body
+        String regex_entitybody = "(?<=^\\s\\s).*";
+        //Obtain tokens as strings
+        Matcher httpparse = Pattern.compile(regex_requestline).matcher(req);
+        httpparse.find();
+        http_requestLine= httpparse.group();
+        httpparse = Pattern.compile(regex_headerbody).matcher(req);
+        httpparse.find();
+        http_headerBody= httpparse.group();
+        httpparse = Pattern.compile(regex_entitybody,Pattern.MULTILINE).matcher(req);
+        httpparse.find();
+        http_entityBody= httpparse.group();
+        //Further Tokenizing of HTTP requestline to ensure meaningful request:verb, requestURI,etc
+        Scanner requestline = new Scanner(http_requestLine);
+        //Obtaining tokenized HTTP requestline
+        setRequestTokens(requestline);
+    }
+
+
+    public String getReq() {
+        return req; }
 
     private void setRequestTokens(Scanner requestLine){
         http_method = requestLine.next().trim();
-        http_requesturi = requestLine.next().trim();
+        //Setting request URI relative to BASE URI of web root specified by user.dir
+        String resource = requestLine.next().trim();
+        if(resource.equals("/")) {
+            http_requesturi = new File(System.getProperty("user.dir") + "/game.html");
+        }
+        else {
+            http_requesturi = new File(System.getProperty("user.dir") + resource);
+        }
         http_version =requestLine.next().trim();
     }
 
@@ -98,7 +73,7 @@ public class HttpRequest extends HttpMessage{
         return http_method;
     }
 
-    public String getHttp_requesturi() {
+    public File getHttp_requesturi() {
         return http_requesturi;
     }
 

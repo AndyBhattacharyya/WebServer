@@ -27,11 +27,17 @@ public class MessageHandler implements Runnable {
             HttpClientInput.read(tmp);
             //Creating String to represent entire request
             String req = new String(tmp);
-            //Encapsulating client's request attributes/functionality in object HttpRequest
-            HttpRequest client = new HttpRequest(req);
-            //Telling the webserver to respond, which will respond based on the client's http request
-            new HttpResponse(client).SendHttpResponse(HttpClientOutput);
-            //Added this here so that the client doesn't block, look at java try w/ resources
+            //Validate Syntax/Structure of request
+            if(HttpRequest.validRequest(req)){
+                //Encapsulating client's request attributes/functionality in object HttpRequest
+                HttpRequest client = new HttpRequest(req);
+                //Telling the webserver to respond, which will respond based on the client's http request
+                HttpResponse.SendHttpResponse(HttpClientOutput,new HttpResponse(client));
+            }
+            else{
+               //Sending 400 bad request format
+                HttpResponse.SendHttpResponse(HttpClientOutput,ResponseCodes.R400);
+            }
             HttpClient.close();
         } catch(IOException e){System.out.println("error");}
     }
