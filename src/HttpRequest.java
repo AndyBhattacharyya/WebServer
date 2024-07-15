@@ -15,9 +15,7 @@ public class HttpRequest {
 
     public static boolean validRequest(String req){
         /**
-         * Request-Line regex checklist: 3 letter capital word =^GET , space=\s, /, space=\s, HTTP/any digit,.,any digit:
-         * Request-Line + Headers Checklist:
-         *
+         * Precondition to HTTP req constructor
          */
         //Valid if it is a valid GET req with proper URL encoding. Utilize right library
         String regex_requestline ="^[A-Z]+\\s/[A-Za-z0-9[%.]]*\\sHTTP/(1.0|1.1|2|3)\\s\\s";
@@ -31,7 +29,7 @@ public class HttpRequest {
         this.req=req;
         //Tokenizing Request to validate semantics
         //Tokenize request line
-        String regex_requestline ="^[A-Z]*\\s/.*\\sHTTP/(1.0|1.1|2|3)(\\s\\s)";
+        String regex_requestline ="^[A-Z]*\\s/.*\\sHTTP/(1\\.0|1\\.1|2|3)(\\s\\s)";
         //Tokenize header body as well as null line
         String regex_headerbody="(.+:\\s.+(\\s\\s|\\s))+\\s\\s";
         //Require lookbehind regex so we can identify the EntityBody only if the null line precedes it. Tokenize Entity Body

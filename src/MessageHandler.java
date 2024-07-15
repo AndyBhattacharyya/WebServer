@@ -14,7 +14,7 @@ public class MessageHandler implements Runnable {
     Socket HttpClient;
     public MessageHandler(Socket connection) throws IOException {
        this.HttpClient = connection;
-       this.HttpClientInput = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+       this.HttpClientInput = new BufferedReader(new InputStreamReader(connection.getInputStream(), "ISO_8859_1"));
        //Autoflush enabled
        this.HttpClientOutput = new PrintWriter(connection.getOutputStream(),true);
     }
