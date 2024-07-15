@@ -1,11 +1,12 @@
+import HTTPRequest.HttpRequest;
+import HTTPRequest.ResponseCodes;
+import ResponseProducts.HttpResponse;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MessageHandler implements Runnable {
 
@@ -29,16 +30,18 @@ public class MessageHandler implements Runnable {
             String req = new String(tmp);
             //Validate Syntax/Structure of request
             if(HttpRequest.validRequest(req)){
-                //Encapsulating client's request attributes/functionality in object HttpRequest
+                //Encapsulating client's request attributes/functionality in object HTTPRequest.HttpRequest
                 HttpRequest client = new HttpRequest(req);
                 //Telling the webserver to respond, which will respond based on the client's http request
-                HttpResponse.SendHttpResponse(HttpClientOutput,new HttpResponse(client));
+                HttpResponse.SendHttpResponse(HttpClientOutput, HttpResponse.HttpResponseFactory(client));
             }
             else{
                //Sending 400 bad request format
-                HttpResponse.SendHttpResponse(HttpClientOutput,ResponseCodes.R400);
+                HttpResponse.SendHttpResponse(HttpClientOutput, ResponseCodes.R400);
             }
             HttpClient.close();
-        } catch(IOException e){System.out.println("error");}
+        } catch(IOException e){
+            System.out.println("error");
+        }
     }
 }

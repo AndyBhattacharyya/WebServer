@@ -1,3 +1,5 @@
+package HTTPRequest;
+
 public enum ResponseCodes {
     R200("OK"),R404("Not Found"),R501("Method Not Supported"),R400("Bad Request");
 
