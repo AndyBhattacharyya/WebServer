@@ -7,11 +7,8 @@ import HTTPRequest.*;
 public class HttpResponseGet extends HttpResponse {
 
     public HttpResponseGet(HttpRequest client_request){
-        //call overridden processRequest
+        //sets up status line
         super(client_request);
-        if(this.httpResponseCode.equals(ResponseCodes.R200)) {
-            this.httpResponse = buildHttpResponse(Status_Line, responseHeaders, processRequest(client_request.getHttp_requesturi()));
-        }
     }
 
     private String getFileContent(File URI){
@@ -28,20 +25,21 @@ public class HttpResponseGet extends HttpResponse {
         return "";
     }
 
-   String processRequest(File URI){
+   public void processRequest(){
+        File URI = client_request.getHttp_requesturi();
        //Setting Content-Length Header
        long bytesize = URI.length();
        //Setting Content-Type Header based on extension
        if(Pattern.matches("(.+\\.html)",URI.getName())) {
            addHeaders("Content-Type: text/html\r\n");
            addHeaders("Content-Length: " + Long.toString(bytesize)+"\r\n");
-           return getFileContent(URI);
+           EntityBody =  getFileContent(URI);
        }
        else if(Pattern.matches("(.+\\.js)",URI.getName())) {
            addHeaders("Content-Type: text/javascript\r\n");
            addHeaders("Content-Length: " + Long.toString(bytesize)+"\r\n");
-           return getFileContent(URI);
+           EntityBody =  getFileContent(URI);
        }
-       return "";
+       httpResponse = buildHttpResponse(Status_Line,responseHeaders,EntityBody);
    }
 }

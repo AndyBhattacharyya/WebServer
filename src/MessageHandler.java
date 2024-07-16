@@ -1,3 +1,5 @@
+import Factory.ResponseFactory;
+import Factory.getFactory;
 import HTTPRequest.HttpRequest;
 import HTTPRequest.ResponseCodes;
 import ResponseProducts.HttpResponse;
@@ -29,19 +31,36 @@ public class MessageHandler implements Runnable {
             //Creating String to represent entire request
             String req = new String(tmp);
             //Validate Syntax/Structure of request
-            if(HttpRequest.validRequest(req)){
+            if(ResponseFactory.validRequest(req)){
                 //Encapsulating client's request attributes/functionality in object HTTPRequest.HttpRequest
                 HttpRequest client = new HttpRequest(req);
-                //Telling the webserver to respond, which will respond based on the client's http request
-                HttpResponse.SendHttpResponse(HttpClientOutput, HttpResponse.HttpResponseFactory(client));
+                //Determine which factory to use
+                ResponseFactory httpresponsefactory=null;
+                switch(client.getHttp_method()){
+                    case "GET":
+                        httpresponsefactory = new getFactory();
+                        break;
+                    default:
+                        ResponseFactory.SendHttpResponse(HttpClientOutput, ResponseCodes.R501);
+                        HttpClient.close();
+                }
+                if(!(client.getHttp_requesturi().exists()&&client.getHttp_requesturi().isFile())){
+                    ResponseFactory.SendHttpResponse(HttpClientOutput, ResponseCodes.R404);
+                }else {
+                    assert (httpresponsefactory != null);
+                    //Telling the webserver to respond, which will respond based on the client's http request
+                    ResponseFactory.SendHttpResponse(HttpClientOutput, httpresponsefactory.processRequest(client));
+                }
             }
             else{
                //Sending 400 bad request format
-                HttpResponse.SendHttpResponse(HttpClientOutput, ResponseCodes.R400);
+                ResponseFactory.SendHttpResponse(HttpClientOutput, ResponseCodes.R400);
             }
             HttpClient.close();
         } catch(IOException e){
             System.out.println("error");
+        } catch (AssertionError e){
+
         }
     }
 }

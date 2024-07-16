@@ -15,17 +15,6 @@ public class HttpRequest {
     private String http_headerBody;
     private String req;
 
-    public static boolean validRequest(String req){
-        /**
-         * Precondition to HTTP req constructor
-         */
-        //Valid if it is a valid GET req with proper URL encoding. Utilize right library
-        String regex_requestline ="^[A-Z]+\\s/[A-Za-z0-9[%.]]*\\sHTTP/(1.0|1.1|2|3)\\s\\s";
-        //Requires to match CRLF null line between Headers and Body of HTTP request
-        String regex_body="(.+:\\s.+(\\s\\s|\\s))+\\s\\s";
-        String regex_entitybody=".*";
-        return Pattern.matches(regex_requestline+regex_body+regex_entitybody,req);
-    }
     public HttpRequest(String req){
         //Not yet validated (raw) request
         this.req=req;
@@ -51,7 +40,6 @@ public class HttpRequest {
         //Obtaining tokenized HTTP requestline
         setRequestTokens(requestline);
     }
-
 
     public String getReq() {
         return req; }
