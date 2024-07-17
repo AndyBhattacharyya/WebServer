@@ -1,6 +1,7 @@
 package HTTPRequest;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,9 +14,11 @@ public class HttpRequest {
     private String http_requestLine;
     private String http_entityBody;
     private String http_headerBody;
+    private HashMap <String,String> http_headers;
     private String req;
 
     public HttpRequest(String req){
+        http_headers = new HashMap<String,String>();
         //Not yet validated (raw) request
         this.req=req;
         //Tokenizing Request to validate semantics
@@ -39,6 +42,23 @@ public class HttpRequest {
         Scanner requestline = new Scanner(http_requestLine);
         //Obtaining tokenized HTTP requestline
         setRequestTokens(requestline);
+        setHeaderTokens(http_headerBody, http_headers);
+    }
+
+
+    public String getHeaderTokens(String headerkey){
+        String headervalue;
+        headervalue = http_headers.containsKey(headerkey)?http_headers.get(headerkey):"";
+        return headervalue;
+
+    }
+    private void setHeaderTokens(String headers, HashMap<String,String> tokens){
+        headers = headers.trim();
+        String[] header_values = headers.split("\\s\\s");
+        for(String i:header_values){
+            String[] header_tokens = i.split(":\\s");
+            tokens.put(header_tokens[0],header_tokens[1]);
+        }
     }
 
     public String getReq() {
@@ -56,6 +76,7 @@ public class HttpRequest {
         }
         http_version =requestLine.next().trim();
     }
+
 
     public String getHttp_method() {
         return http_method;

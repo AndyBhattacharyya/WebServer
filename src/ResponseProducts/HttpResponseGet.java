@@ -3,12 +3,21 @@ package ResponseProducts;
 import java.io.*;
 import java.util.regex.Pattern;
 import HTTPRequest.*;
+import HeaderCreation.ContentLengthHeader;
+import HeaderCreation.ContentTypeHeader;
+import HeaderCreation.Header;
+import HeaderStrategies.Context;
 
 public class HttpResponseGet extends HttpResponse {
 
+
+    private Header ContentLength;
+    private Header ContentType;
     public HttpResponseGet(HttpRequest client_request){
-        //sets up status line
+        //sets up status line and response headers to be extended
         super(client_request);
+        this.ContentLength = new ContentLengthHeader(client_request.getHttp_requesturi());
+        this.ContentType = new ContentTypeHeader(client_request.getHttp_requesturi());
     }
 
     private String getFileContent(File URI){
@@ -27,19 +36,16 @@ public class HttpResponseGet extends HttpResponse {
 
    public void processRequest(){
         File URI = client_request.getHttp_requesturi();
-       //Setting Content-Length Header
-       long bytesize = URI.length();
-       //Setting Content-Type Header based on extension
-       if(Pattern.matches("(.+\\.html)",URI.getName())) {
-           addHeaders("Content-Type: text/html\r\n");
-           addHeaders("Content-Length: " + Long.toString(bytesize)+"\r\n");
-           EntityBody =  getFileContent(URI);
-       }
-       else if(Pattern.matches("(.+\\.js)",URI.getName())) {
-           addHeaders("Content-Type: text/javascript\r\n");
-           addHeaders("Content-Length: " + Long.toString(bytesize)+"\r\n");
-           EntityBody =  getFileContent(URI);
-       }
+        //building headers
+       ContentLength.createHeader(this);
+       ContentType.createHeader(this);
+        //building body
+       EntityBody =  getFileContent(URI);
        httpResponse = buildHttpResponse(Status_Line,responseHeaders,EntityBody);
+   }
+   public void processHeaders(){
+        Context executor = new Context();
+        //Make this extensible, however this is where I will choose which headers to recognize
+
    }
 }

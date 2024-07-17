@@ -44,8 +44,10 @@ public abstract class ResponseFactory {
     }
 
     public HttpResponse processRequest(HttpRequest client_request){
+        //Caller of product functions and extensible
        HttpResponse tmp = this.createResponse(client_request);
        tmp.processRequest();
+       tmp.processHeaders();
        return tmp;
     }
 }
