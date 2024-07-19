@@ -7,52 +7,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HttpRequest {
+    private String requestMethod;
+    private File requestURI;
+    private String requestVersion;
+    private String requestLine;
+    private byte[] requestEntityBody;
+    private String requestHeader;
+    private HashMap <String,String> requestHeaderValues;
 
-    private String http_method;
-    private File http_requesturi;
-    private String http_version;
-    private String http_requestLine;
-    private String http_entityBody;
-    private String http_headerBody;
-    private HashMap <String,String> http_headers;
-    private String req;
-
-    public HttpRequest(String req){
-        http_headers = new HashMap<String,String>();
-        //Not yet validated (raw) request
-        this.req=req;
-        //Tokenizing Request to validate semantics
-        //Tokenize request line
-        String regex_requestline ="^[A-Z]*\\s/.*\\sHTTP/(1\\.0|1\\.1|2|3)(\\s\\s)";
-        //Tokenize header body as well as null line
-        String regex_headerbody="(.+:\\s.+(\\s\\s|\\s))+\\s\\s";
-        //Require lookbehind regex so we can identify the EntityBody only if the null line precedes it. Tokenize Entity Body
-        String regex_entitybody = "(?<=^\\s\\s).*";
-        //Obtain tokens as strings
-        Matcher httpparse = Pattern.compile(regex_requestline).matcher(req);
-        httpparse.find();
-        http_requestLine= httpparse.group();
-        httpparse = Pattern.compile(regex_headerbody).matcher(req);
-        httpparse.find();
-        http_headerBody= httpparse.group();
-        httpparse = Pattern.compile(regex_entitybody,Pattern.MULTILINE).matcher(req);
-        httpparse.find();
-        http_entityBody= httpparse.group();
-        //Further Tokenizing of HTTP requestline to ensure meaningful request:verb, requestURI,etc
-        Scanner requestline = new Scanner(http_requestLine);
-        //Obtaining tokenized HTTP requestline
-        setRequestTokens(requestline);
-        setHeaderTokens(http_headerBody, http_headers);
+    public HttpRequest(String requestLine, String requestHeader, byte[] requestEntityBody){
+        this.requestLine = requestLine;
+        this.requestHeader = requestHeader;
+        this.requestEntityBody = requestEntityBody;
     }
-
-
     public String getHeaderTokens(String headerkey){
         String headervalue;
-        headervalue = http_headers.containsKey(headerkey)?http_headers.get(headerkey):"";
+        headervalue = requestHeaderValues.containsKey(headerkey)?requestHeaderValues.get(headerkey):"";
         return headervalue;
 
     }
-    private void setHeaderTokens(String headers, HashMap<String,String> tokens){
+    public void setHeaderTokens(String headers, HashMap<String,String> tokens){
         headers = headers.trim();
         String[] header_values = headers.split("\\s\\s");
         for(String i:header_values){
@@ -60,45 +34,63 @@ public class HttpRequest {
             tokens.put(header_tokens[0],header_tokens[1]);
         }
     }
-
-    public String getReq() {
-        return req; }
-
-    private void setRequestTokens(Scanner requestLine){
-        http_method = requestLine.next().trim();
+    public void setRequestTokens(){
+        Scanner requestLine = new Scanner(this.requestLine);
+        requestMethod = requestLine.next().trim();
         //Setting request URI relative to BASE URI of web root specified by user.dir
         String resource = requestLine.next().trim();
         if(resource.equals("/")) {
-            http_requesturi = new File(System.getProperty("user.dir") + "/game.html");
+            requestURI = new File(System.getProperty("user.dir") + "/game.html");
         }
         else {
-            http_requesturi = new File(System.getProperty("user.dir") + resource);
+            requestURI = new File(System.getProperty("user.dir") + resource);
         }
-        http_version =requestLine.next().trim();
+        requestVersion =requestLine.next().trim();
     }
 
-
-    public String getHttp_method() {
-        return http_method;
+    public String getRequestMethod() {
+        return requestMethod;
     }
 
-    public File getHttp_requesturi() {
-        return http_requesturi;
+    public File getRequestURI() {
+        return requestURI;
     }
 
-    public String getHttp_version() {
-        return http_version;
+    public String getRequestVersion() {
+        return requestVersion;
     }
 
-    public String getHttp_entityBody() {
-        return http_entityBody;
+    public byte[] getRequestEntityBody() {
+        return requestEntityBody;
     }
 
-    public String getHttp_requestLine() {
-        return http_requestLine;
+    public String getRequestLine() {
+        return requestLine;
     }
 
-    public String getHttp_headerBody() {
-        return http_headerBody;
+    public class HttpRequestValidator implements ValidHttpRequest {
+
+        @Override
+        public boolean validateThenSetRequestToken() {
+            //Tokenizing Request to validate syntax
+            String regex_requestline ="^[A-Z]*\\s/.*\\sHTTP/(1\\.0|1\\.1|2|3)";
+            boolean tmp =Pattern.matches(regex_requestline,requestLine);
+            if (tmp) {
+                setRequestTokens();
+            }
+            return tmp;
+        }
+
+        @Override
+        public boolean validateThenSetHeaderToken() {
+            //Tokenize header body as well as null line
+            //remove this since there is only a request line and a regex_headerbody
+            String regex_headerbody="(.+:\\s.+(\\s\\s)?)+";
+            boolean tmp =Pattern.matches(regex_headerbody,requestHeader);
+            if (tmp) {
+                setHeaderTokens(requestHeader,requestHeaderValues);
+            }
+            return tmp;
+        }
     }
 }

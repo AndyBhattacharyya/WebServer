@@ -16,8 +16,8 @@ public class HttpResponseGet extends HttpResponse {
     public HttpResponseGet(HttpRequest client_request){
         //sets up status line and response headers to be extended
         super(client_request);
-        this.ContentLength = new ContentLengthHeader(client_request.getHttp_requesturi());
-        this.ContentType = new ContentTypeHeader(client_request.getHttp_requesturi());
+        this.ContentLength = new ContentLengthHeader(client_request.getRequestURI());
+        this.ContentType = new ContentTypeHeader(client_request.getRequestURI());
     }
 
     private String getFileContent(File URI){
@@ -35,7 +35,7 @@ public class HttpResponseGet extends HttpResponse {
     }
 
    public void processRequest(){
-        File URI = client_request.getHttp_requesturi();
+        File URI = client_request.getRequestURI();
         //building headers
        ContentLength.createHeader(this);
        ContentType.createHeader(this);
