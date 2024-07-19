@@ -32,7 +32,7 @@ public class MessageHandler implements Runnable {
             int indexRequestLine = request.indexOf("\r\n");
             int indexEntityBody = request.indexOf("\r\n\r\n");
             String requestLine = new String(requestbyte,0,indexRequestLine);
-            String requestHeaders = new String(requestbyte,indexRequestLine,indexEntityBody-1);
+            String requestHeaders = new String(requestbyte,indexRequestLine+2,indexEntityBody-(indexRequestLine+2));
             int lengthEntityBody=bufferlength-(indexEntityBody+4);
             byte[] requestEntityBody = new byte[lengthEntityBody];
             for(int i = 0; i<lengthEntityBody; i++){
