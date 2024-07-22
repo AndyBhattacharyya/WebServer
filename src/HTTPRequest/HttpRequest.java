@@ -2,6 +2,7 @@ package HTTPRequest;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,7 +74,7 @@ public class HttpRequest {
         return requestLine;
     }
 
-    public class HttpRequestValidator implements ValidHttpRequest {
+    public class HttpRequestValidator implements ValidHttpRequest  {
 
         @Override
         public boolean validateThenSetRequestToken() {

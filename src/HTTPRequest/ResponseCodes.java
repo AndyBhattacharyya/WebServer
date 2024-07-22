@@ -1,7 +1,7 @@
 package HTTPRequest;
 
 public enum ResponseCodes {
-    R200("OK"),R404("Not Found"),R501("Method Not Supported"),R400("Bad Request");
+    R200("OK"),R404("Not Found"),R501("Method Not Supported"),R400("Bad Request"),R304("Not Modified");
 
     private String ResponsePhrase;
     ResponseCodes(String phrase){
@@ -21,9 +21,8 @@ public enum ResponseCodes {
                 return "501";
             case R400:
                 return "400";
-
-        }
+            case R304:
+                return "304";}
         return "";
-
     }
 }

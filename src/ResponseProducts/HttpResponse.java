@@ -2,6 +2,7 @@ package ResponseProducts;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import HTTPRequest.*;
 import HeaderCreation.DefaultDateHeader;
@@ -20,7 +21,6 @@ public class HttpResponse {
 
     HttpRequest client_request;
     private String responseStatusLine="";
-    private String responseTotalHeaders="";
     private String responseEntityBody="";
     private String response="";
     private ResponseCodes responseStatusCode;
@@ -29,7 +29,16 @@ public class HttpResponse {
     void buildHeaders(){
 
     }
-    void setResponseStatusCode(ResponseCodes responseStatusCode){
+
+    public HttpRequest getClient_request() {
+        return client_request;
+    }
+
+    public ResponseCodes getResponseStatusCode() {
+        return responseStatusCode;
+    }
+
+    public void setResponseStatusCode(ResponseCodes responseStatusCode){
        this.responseStatusCode=responseStatusCode;
     }
     void buildEntityBody(String responseEntityBody){
@@ -49,8 +58,24 @@ public class HttpResponse {
     public HttpResponse(HttpRequest client_request){
         this.client_request=client_request;
         //put an anonymous class here quickly overriding the hashmap toString()
-        this.responseHeaders = client_request.getRequestHeaderValues();
-        responseTotalHeaders = "\r\n";
+        this.responseHeaders = new HashMap<String, String>(){
+            @Override
+            public String toString() {
+                Iterator<Entry<String,String>> i = entrySet().iterator();
+                if (! i.hasNext())
+                    return "";
+                StringBuilder sb = new StringBuilder();
+                for (;;) {
+                    Entry<String,String> e = i.next();
+                    String key = e.getKey();
+                    String value = e.getValue();
+                    sb.append(key+": "+value);
+                    sb.append("\r\n");
+                    if (! i.hasNext())
+                        return sb.append("\r\n").toString();
+                }
+            }
+        };
         for(Header i:defaultHeaders){
             i.createHeader(this.responseHeaders);
         }

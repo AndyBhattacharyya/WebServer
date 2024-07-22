@@ -8,6 +8,15 @@ import java.util.Locale;
 public class DefaultDateHeader implements Header{
     String headerField;
     String headerValue;
+    //Define Date Attributes that are easily accessible/comparable
+    /* implement compareto
+    day
+    day number
+    month
+    year
+    time
+    time zone
+     */
 
     public DefaultDateHeader(){
         headerField = "Date";

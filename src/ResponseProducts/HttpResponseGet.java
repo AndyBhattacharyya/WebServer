@@ -7,6 +7,7 @@ import HeaderCreation.ContentLengthHeader;
 import HeaderCreation.ContentTypeHeader;
 import HeaderCreation.Header;
 import HeaderStrategies.Context;
+import HeaderStrategies.IfModifiedSinceProcess;
 import HeaderStrategies.Strategy;
 
 public class HttpResponseGet extends HttpResponse {
@@ -38,16 +39,22 @@ public class HttpResponseGet extends HttpResponse {
     }
 
    public void processRequest(){
-
-        File URI = client_request.getRequestURI();
-        //building headers
-       ContentLength.createHeader(this.responseHeaders);
-       ContentType.createHeader(this.responseHeaders);
-        //building body
-       buildEntityBody(getFileContent(URI));
-       buildStatusLine(ResponseCodes.R200);
-       buildResponse();
+        //Checking headers with request
+       Context headerServicer = new Context();
+       File URI = client_request.getRequestURI();
+       String clientHeader;
+       if(!(clientHeader=client_request.getHeaderTokens("If-Modified-Since")).equals("")){
+           headerServicer.setStrategy(new IfModifiedSinceProcess(URI));
+           headerServicer.executeStrategy(this);
+       }
+       if(this.getResponseStatusCode().equals(ResponseCodes.R200)) {
+           //building headers
+           ContentLength.createHeader(this.responseHeaders);
+           ContentType.createHeader(this.responseHeaders);
+           //building body
+           buildEntityBody(getFileContent(URI));
+           buildStatusLine(ResponseCodes.R200);
+           buildResponse();
+       }
    }
-
-
 }
