@@ -1,17 +1,21 @@
 package HeaderCreation;
 
-import ResponseProducts.HttpResponse;
+import java.util.HashMap;
 
 public class DefaultServerHeader implements Header{
-    private String servertoken;
-    public DefaultServerHeader(String servertoken){
-        this.servertoken = servertoken;
+    private String headerField;
+    private String headerValue;
+    public DefaultServerHeader(String servertoken) {
+        this();
+        this.headerValue = servertoken;
     }
+
     public DefaultServerHeader(){
-        this.servertoken = "AndyTextGames";
+        this.headerField = "Server";
+        this.headerValue = "Andy Games";
     }
     @Override
-    public void createHeader(HttpResponse tmp) {
-        tmp.addHeaders("Server: "+servertoken+"\r\n");
+    public void createHeader(HashMap<String, String> tmp) {
+        tmp.put(headerField,headerValue);
     }
 }

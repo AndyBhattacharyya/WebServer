@@ -7,17 +7,20 @@ import HeaderCreation.ContentLengthHeader;
 import HeaderCreation.ContentTypeHeader;
 import HeaderCreation.Header;
 import HeaderStrategies.Context;
+import HeaderStrategies.Strategy;
 
 public class HttpResponseGet extends HttpResponse {
 
 
     private Header ContentLength;
     private Header ContentType;
+    private Context headerprocessor;
     public HttpResponseGet(HttpRequest client_request){
         //sets up status line and response headers to be extended
         super(client_request);
         this.ContentLength = new ContentLengthHeader(client_request.getRequestURI());
         this.ContentType = new ContentTypeHeader(client_request.getRequestURI());
+        this.headerprocessor = new Context();
     }
 
     private String getFileContent(File URI){
@@ -35,17 +38,16 @@ public class HttpResponseGet extends HttpResponse {
     }
 
    public void processRequest(){
+
         File URI = client_request.getRequestURI();
         //building headers
-       ContentLength.createHeader(this);
-       ContentType.createHeader(this);
+       ContentLength.createHeader(this.responseHeaders);
+       ContentType.createHeader(this.responseHeaders);
         //building body
-       EntityBody =  getFileContent(URI);
-       httpResponse = buildHttpResponse(Status_Line,responseHeaders,EntityBody);
+       buildEntityBody(getFileContent(URI));
+       buildStatusLine(ResponseCodes.R200);
+       buildResponse();
    }
-   public void processHeaders(){
-        Context executor = new Context();
-        //Make this extensible, however this is where I will choose which headers to recognize
 
-   }
+
 }

@@ -1,6 +1,6 @@
 package HeaderCreation;
 
-import ResponseProducts.HttpResponse;
+import java.util.HashMap;
 
 public class DefaultExpiresHeader extends DefaultDateHeader{
 
@@ -8,8 +8,8 @@ public class DefaultExpiresHeader extends DefaultDateHeader{
         super();
     }
     @Override
-    public void createHeader(HttpResponse tmp) {
+    public void createHeader(HashMap<String, String> tmp) {
         super.initDate();
-        tmp.addHeaders("Expires: "+date+"\r\n");
+        tmp.put(headerField,headerValue);
     }
 }

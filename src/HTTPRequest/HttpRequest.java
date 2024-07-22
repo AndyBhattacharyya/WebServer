@@ -20,12 +20,17 @@ public class HttpRequest {
         this.requestHeader = requestHeader;
         this.requestEntityBody = requestEntityBody;
     }
+
     public String getHeaderTokens(String headerkey){
         String headervalue;
         headervalue = requestHeaderValues.containsKey(headerkey)?requestHeaderValues.get(headerkey):"";
         return headervalue;
-
     }
+
+    public HashMap<String, String> getRequestHeaderValues() {
+        return requestHeaderValues;
+    }
+
     public void setHeaderTokens(String headers, HashMap<String,String> tokens){
         headers = headers.trim();
         String[] header_values = headers.split("\\s\\s");
@@ -88,6 +93,7 @@ public class HttpRequest {
             String regex_headerbody="(.+:\\s.+(\\s\\s)?)+";
             boolean tmp =Pattern.matches(regex_headerbody,requestHeader);
             if (tmp) {
+                requestHeaderValues = new HashMap<String,String>();
                 setHeaderTokens(requestHeader,requestHeaderValues);
             }
             return tmp;

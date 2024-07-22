@@ -24,7 +24,7 @@ public abstract class ResponseFactory {
     }
 
     public static void SendHttpResponse(PrintWriter tmp, HttpResponse httpResponse){
-        tmp.println(httpResponse.getHttpResponse());
+        tmp.println(httpResponse.getResponse());
     }
     abstract HttpResponse createResponse(HttpRequest client);
 
@@ -35,7 +35,6 @@ public abstract class ResponseFactory {
     //Caller of product functions and extensible
        HttpResponse tmp = this.createResponse(client_request);
        tmp.processRequest();
-       tmp.processHeaders();
        return tmp;
     }
 }

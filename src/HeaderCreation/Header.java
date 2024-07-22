@@ -1,7 +1,7 @@
 package HeaderCreation;
 
-import ResponseProducts.HttpResponse;
+import java.util.HashMap;
 
 public interface Header {
-    void createHeader(HttpResponse tmp);
+    void createHeader(HashMap<String,String> tmp);
 }
