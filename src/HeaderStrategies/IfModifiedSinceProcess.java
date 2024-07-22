@@ -22,11 +22,12 @@ public class IfModifiedSinceProcess implements Strategy {
         Date date = new Date(URI.lastModified());
         ZonedDateTime fileModifiedDate = date.toInstant().atZone(ZoneId.of("GMT"));
         DateTimeFormatter requestDateFormat = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z");
-        ZonedDateTime requestDate = ZonedDateTime.parse(client.getHeaderTokens("Date"),requestDateFormat);
-        //file modified > client time
-        if(fileModifiedDate.compareTo(requestDate)<0 ){
-            tmp.setResponseStatusCode(ResponseCodes.R304);
-        }
-
+        try {
+            ZonedDateTime requestDate = ZonedDateTime.parse(client.getHeaderTokens("If-Modified-Since"), requestDateFormat);
+            //file modified > client time
+            if (fileModifiedDate.compareTo(requestDate) < 0) {
+                tmp.setResponseStatusCode(ResponseCodes.R304);
+            }
+        } catch (Exception e){}
     }
 }
